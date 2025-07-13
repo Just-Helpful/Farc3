@@ -50,6 +50,16 @@ pub trait Constraint {
   /// - `return 0` when no solutions are possible
   fn size(&self) -> usize;
 
+  /// Whether this constraint has no possible solutions
+  fn is_empty(&self) -> bool {
+    self.size() == 0
+  }
+
+  /// Whether this constraint has a single, unique solution
+  fn is_solved(&self) -> bool {
+    self.size() == 1
+  }
+
   /// All variables that `self` affects
   fn variables(&self) -> impl Iterator<Item = Self::Var>;
 
