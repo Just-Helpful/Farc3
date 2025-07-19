@@ -35,6 +35,24 @@ use std::fmt::Debug;
 ///   // position [3, 3] is a mine
 /// }
 /// ```
+///
+/// ## Notes
+///
+/// I don't really like this interface for `Constraint`s,\
+/// it feels like there's a fair bit of duplicated / unnecessary methods on it.\
+///
+/// More specifically:
+/// - it feels like `Var` should be a type argument
+/// - `size` feels like it's hard to explain what it does,\
+///   which feels like a poorly defined interface method
+/// - `decompositions` feels like it overlaps `pop_solution`\
+///   and also could be better in its argument and return types
+/// - `reduce` feels like its return type could provide more information
+///   - it feels wrong to return a `Result<bool, _>`\
+///     as we could return something more informative than `bool`
+///
+/// I'm going to be attempting to rework it by writing a whole bunch of examples\
+/// and seeing what parts are common to most CSPs.
 pub trait Constraint {
   /// The type of variables assigned by the Constraint
   type Var;
