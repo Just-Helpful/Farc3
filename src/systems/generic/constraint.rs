@@ -55,8 +55,7 @@ impl<V: Hash + Eq + Debug, T: Hash + Eq, I: IntoIterator<Item = (V, T)>> FromIte
       assert!(
         (variables.len() == vars0.len()) && variables.iter().all(|var| vars0.contains(var)),
         "variables are not consistent when constructing generic constraint\n\
-        help: expected all assignments to use the variables {:?}",
-        variables
+        help: expected all assignments to use the variables {variables:?}",
       );
       assignments.insert(values);
     }
