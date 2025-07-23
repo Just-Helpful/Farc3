@@ -8,12 +8,10 @@ use std::fmt::Debug;
 ///
 /// ## Invariants
 ///
-/// 1. if `self.variables().count() == 0`, then `self.size() == 1`\
-///    i.e. if a constraint affects no variables, it should have 1 solution, the empty solution
-/// 2. if `this.variables().count() > 0`, then `this.decompositions().count() >= 1`\
-///    i.e. if a constraint affects any variables, it should have at least 1 decomposition
+/// If `self.variables().count() == 0`, then `self.size() == 1`\
+/// i.e. if a constraint affects no variables, it should have 1 solution, the empty solution
 ///
-/// ## Formal definition
+/// ## *Formal definition*
 ///
 /// Formally, a constraint is a set of possible assignments for the variables within a problem.
 ///

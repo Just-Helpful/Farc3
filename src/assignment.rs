@@ -2,7 +2,7 @@
 
 /// A unique assignment of values to variables in a system
 ///
-/// ## Formal definition
+/// ## *Formal definition*
 ///
 /// Formally, an assignment is a map from a variable in a problem to a value.
 ///
