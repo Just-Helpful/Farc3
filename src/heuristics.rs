@@ -39,9 +39,9 @@ impl<C, R: Ord, H: FnMut(&C, &[&C]) -> R> Heuristic<C> for H {
 pub struct DefaultHeuristic;
 
 impl<C: Constraint> Heuristic<C> for DefaultHeuristic {
-  type Rank = (isize, isize);
+  type Rank = (isize, usize);
 
   fn rank(&mut self, constraint: &C, overlaps: &[&C]) -> Self::Rank {
-    (-(constraint.size() as isize), (overlaps.len() as isize))
+    (-(constraint.size() as isize), overlaps.len())
   }
 }
