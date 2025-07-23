@@ -74,7 +74,7 @@ pub mod systems;
 mod utils;
 
 pub mod prelude {
-  //! Common imports to `farc3-csp`
+  //! Common imports to `farc3`
   pub use super::{
     assignment::Assignment,
     constraint::Constraint,
