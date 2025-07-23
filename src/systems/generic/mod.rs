@@ -1,5 +1,5 @@
 //! Generic Constraints for CSPs with discrete variables.\
-//! These do not have efficient implementations.
+//! These **do not** have efficient implementations.
 pub mod assignment;
 pub mod constraint;
 pub mod utils;

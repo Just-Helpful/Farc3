@@ -10,9 +10,7 @@
 pub fn choose_num(n: usize, r: usize) -> usize {
   debug_assert!(
     r <= n,
-    "Unable to choose more than {} items from a collection with {} items",
-    r,
-    n
+    "Unable to choose more than {r} items from a collection with {n} items",
   );
   // n! / r!
   let pick = (((r + 1).max(2))..=n).product::<usize>();
