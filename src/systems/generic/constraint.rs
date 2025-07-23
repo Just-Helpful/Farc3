@@ -5,9 +5,11 @@ use std::fmt::Debug;
 use std::hash::Hash;
 use std::mem;
 
+use crate::prelude::Constraint;
 use crate::systems::generic::utils::IteratorPartition;
 use crate::utils::NewHashSet;
-use crate::{prelude::Constraint, systems::generic::assignment::DiscreteAssignment};
+
+use super::assignment::DiscreteAssignment;
 
 /// A generic form of Constraints on discrete variables.
 ///
