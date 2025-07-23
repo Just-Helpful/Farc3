@@ -12,7 +12,7 @@
 //! [coverage-url]: https://github.com/Just-Helpful/Farc3/actions/runs/16474893008/artifacts/3598243412
 //!
 //! A semi-generic approach to solving Constraint Satisfaction Problems,\
-//! with the possibility to optimise based on the specific implementation of Constraints.
+//! with the possibility to optimise based on the implementation of Constraints.
 //!
 //! The primary exports of this crate are:
 //!
