@@ -6,7 +6,7 @@ use std::hash::Hash;
 use std::mem;
 
 use crate::prelude::Constraint;
-use crate::systems::generic::utils::IteratorPartition;
+use crate::systems::discrete::utils::IteratorPartition;
 use crate::utils::NewHashSet;
 
 use super::assignment::DiscreteAssignment;
