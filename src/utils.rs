@@ -1,6 +1,6 @@
 use std::{
-  collections::HashSet,
   collections::hash_set,
+  collections::HashSet,
   hash::{DefaultHasher, Hash, Hasher},
   num::Wrapping,
   ops::{Deref, DerefMut},

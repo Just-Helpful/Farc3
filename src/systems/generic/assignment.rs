@@ -1,6 +1,6 @@
 //! Generic assignments from variables to discrete values
 
-use std::{collections::HashMap, collections::hash_map, hash::Hash};
+use std::{collections::hash_map, collections::HashMap, hash::Hash};
 
 use crate::prelude::Assignment;
 
