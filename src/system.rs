@@ -23,11 +23,30 @@ use crate::{
 /// 1. There are no duplicate constraints in [`Self::constraints`]
 /// 2. For each variable that a constraint affects, there's a back reference in [`Self::references`]
 ///
+/// ## Todo
+///
+/// ### Rc rewrite
+///
+/// We can probably refactor this to make use of `Rc`s and `Mutex`es,\
+/// instead of relying on a hashmap and backlinks. This will:
+/// 1. require less indirection (no hopping through 2 hashmaps)
+/// 2. not require multiple hashes to access connected constraints
+/// 3. maybe remove the need for `System::references`
+/// 4. probably simplify a few methods :P
+///
+/// ### Set-like methods
+///
+/// It'd probably be useful to provide more of the methods\
+/// commonly seen on `HashSet`s, i.e. `union` and `intersection`.\
+/// These methods could be used to combine constraint systems\
+/// and I see them maybe forming something that users may need.
+///
+/// I should focus on developing these in a separate branch\
+/// as it's not a feature that is core to the implementation\
+/// of constraint systems, but *could be* helpful.
 #[derive(Clone, Debug)]
 pub struct System<C: Constraint> {
   /// Constraints to be solved.
-  ///
-  /// ## Note
   ///
   /// We use a Vec here for memory size reasons\
   /// and better support for operations on slices.
@@ -37,8 +56,6 @@ pub struct System<C: Constraint> {
   /// I should just benchmark this properly.
   constraints: Vec<C>,
   /// The indexes of added constraints
-  ///
-  /// ## Note
   ///
   /// This is used make constraint removal simpler, avoid duplicates\
   /// and "hide" the fact we're using a `Vec` under the hood
