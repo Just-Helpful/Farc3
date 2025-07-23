@@ -4,6 +4,8 @@ use super::constraint::Constraint;
 
 /// A heuristic that guides which constraints to explore first\
 /// whilst searching for solutions to systems of constraints.
+///
+/// The constraint with the **maximum** heuristic value is explored first
 pub trait Heuristic<C> {
   /// A ranking used to decide the best constraint to explore
   type Rank: Ord;
@@ -17,7 +19,8 @@ pub trait Heuristic<C> {
   ///
   /// ## Returns
   ///
-  /// An orderable ranking for the given constraint
+  /// An orderable ranking for the given constraint.\
+  /// [`System`] will pick the constraint with the **max** rank
   fn rank(&mut self, constraint: &C, overlaps: &[&C]) -> Self::Rank;
 }
 
