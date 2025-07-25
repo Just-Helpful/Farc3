@@ -42,7 +42,12 @@ use std::fmt::Debug;
 /// it feels like there's a fair bit of duplicated / unnecessary methods on it.\
 ///
 /// More specifically:
-/// - it feels like `Var` should be a type argument
+/// - ~~it feels like `Var` should be a type argument~~
+///   - it **should not**, there should be one type of variable\
+///     per implementation of a `Constraint`.\
+///   - if you need multiple variable types for a constriant\
+///     implementation, then you **should** use a generic type\
+///     argument in your `struct`, not in the `Constraint` trait.
 /// - `size` feels like it's hard to explain what it does,\
 ///   which feels like a poorly defined interface method
 /// - `decompositions` feels like it overlaps `pop_solution`\
@@ -53,6 +58,21 @@ use std::fmt::Debug;
 ///
 /// I'm going to be attempting to rework it by writing a whole bunch of examples\
 /// and seeing what parts are common to most CSPs.
+///
+/// Some notes from example based research:
+/// - `reduce` should definitely return which variables were\
+///   removed as a result of the constraint reduction
+///   - this lets us make our reductions more efficient and can almost always be done
+///   - it also makes the `variables` a bit less necessary,\
+///     making it only necessary for constraint system initialisation
+///   - this might warrant a custom type, at least to provide docstrings
+/// - `decompositions` and `pop_solution` can be replaced with an `assign` method\
+///   which assigns all variables in a solution that are constrained by `self`\
+///   to the provided values\
+///   and a `solutions` method that generates all solutions to this constraint.
+///   - this also potentially allows us to replace the `size` method\
+///     with `cons.solutions().size_hint()` method on iterators\
+///     though this would **need** a note in the docstrings saying I need a size hint.
 pub trait Constraint {
   /// The type of variables assigned by the Constraint
   type Var;
