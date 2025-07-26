@@ -44,6 +44,24 @@ use crate::{
 /// I should focus on developing these in a separate branch\
 /// as it's not a feature that is core to the implementation\
 /// of constraint systems, but *could be* helpful.
+///
+/// ### Assignment caching
+///
+/// We ideally want to be able to avoid doing repeated work for solutions.\
+/// This would primarily consist of caching which assignments have resulted\
+/// in conflicts and valid solutions to the [`System`], which can be acheived\
+/// by creating a [`HashMap`] that maps from seen assignments to their\
+/// eventual solution / conflict.
+///
+/// This can potentially be extended by introducing "causality", where\
+/// the order that the assignments were arrived at is tracked, to allow\
+/// us to determine which assignments caused others.\
+/// (for an example, see `pubgrub` incompatability explanations)
+///
+/// This can also better inform which constraint to search next,\
+/// by examining the frequency with which supersets of that assignment\
+/// resolve to solutions.\
+/// (if supersets commonly lead to solutions, the assignment is probably "good")
 #[derive(Clone, Debug)]
 pub struct System<C: Constraint> {
   /// Constraints to be solved.
