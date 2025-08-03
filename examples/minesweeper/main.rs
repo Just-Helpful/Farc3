@@ -1,13 +1,17 @@
 use std::collections::HashSet;
 use std::hash::Hash;
+use std::ops::{Deref, DerefMut};
 
-#[derive(Default, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct TileState {
   /// positions this constraint affects
   tiles: HashSet<[usize; 2]>,
   /// The number of mines in `tiles`
   count: usize,
 }
+
+mod print;
+use print::{print_results, print_states};
 
 /// Pops a single item from a hashset
 fn pop_set<T: Clone + Hash + Eq>(set: &mut HashSet<T>) -> Option<T> {
@@ -16,7 +20,7 @@ fn pop_set<T: Clone + Hash + Eq>(set: &mut HashSet<T>) -> Option<T> {
   Some(item)
 }
 
-#[derive(PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum TileResult {
   Unknown,
   Mine,
@@ -25,13 +29,15 @@ pub enum TileResult {
 
 /// Extracts all tile results from the minesweeper board\
 /// This mutates the board state, removing all tiles resolved.
-fn extract_results(board: &mut [&mut [TileState]]) -> Option<Vec<Vec<TileResult>>> {
+fn extract_results<R: DerefMut<Target = [TileState]>>(
+  board: &mut [R],
+) -> Option<Vec<Vec<TileResult>>> {
   let mut results: Vec<_> = board
     .iter()
     .map(|row| vec![TileResult::Unknown; row.len()])
     .collect();
 
-  let tile_idxs = board.iter().flat_map(|row| row.iter());
+  let tile_idxs = board.iter_mut().flat_map(|row| row.iter_mut());
 
   for tile in tile_idxs {
     let result = if tile.count == 0 {
@@ -41,6 +47,10 @@ fn extract_results(board: &mut [&mut [TileState]]) -> Option<Vec<Vec<TileResult>
     } else {
       continue;
     };
+
+    // remove tilestate
+    tile.count = 0;
+    tile.tiles = HashSet::new();
 
     for &[i0, j0] in &tile.tiles {
       if results[j0][i0] == TileResult::Unknown {
@@ -67,32 +77,47 @@ fn extract_results(board: &mut [&mut [TileState]]) -> Option<Vec<Vec<TileResult>
 /// ## Returns
 ///
 /// Whether the board had conflicting constraints
-fn resolve_tiles(
-  board: &mut [&mut [TileState]],
+pub fn resolve_tiles<R: DerefMut<Target = [TileState]>>(
+  board: &mut [R],
   start: impl IntoIterator<Item = [usize; 2]>,
 ) -> Option<Vec<Vec<TileResult>>> {
   let mut updates = HashSet::from_iter(start);
   let mut tile = TileState::default();
 
   while let Some([i, j]) = pop_set(&mut updates) {
+    println!("{i}, {j}");
+
     // pull the tile out (this is **only** safe in single threads)
     // @note we need to do this to make rust's borrow checker happy
     // @todo when multithreading, we'll need a mutex to lock access
     std::mem::swap(&mut tile, &mut board[j][i]);
+    println!("{tile:?}");
 
     // perform reduction with all affected tiles
     for [i0, j0] in tile.tiles.iter().copied().collect::<Vec<_>>() {
       // skip if we've already removed this neighbour
-      if tile.tiles.contains(&[i0, j0]) {
+      if !tile.tiles.contains(&[i0, j0]) {
         continue;
       }
 
       // reduce with tile0
       let tile0 = &board[j0][i0];
-      let diff: HashSet<_> = tile.tiles.difference(&tile0.tiles).copied().collect();
+      println!("Candidate {tile0:?}");
+
+      if tile0.tiles.is_empty() {
+        println!("  Empty state, skipping");
+        continue;
+      }
+
+      let mut tiles = tile0.tiles.clone();
+      tiles.remove(&[i, j]);
+      println!("  Produced tiles {tiles:?}");
+
+      let diff: HashSet<_> = tile.tiles.difference(&tiles).copied().collect();
 
       // all safe case
       if tile0.count == 0 {
+        println!("  All tiles safe, reducing");
         // contradictions!
         if diff.len() < tile.count {
           return None;
@@ -105,6 +130,7 @@ fn resolve_tiles(
 
       // all mine case
       if tile0.count == tile0.tiles.len() {
+        println!("  All tiles mine, reducing");
         // contradictions!
         if tile.count < tile0.count {
           return None;
@@ -120,7 +146,8 @@ fn resolve_tiles(
       }
 
       // superset case
-      if tile.tiles.is_subset(&tile0.tiles) {
+      if tile.tiles.is_superset(&tiles) {
+        println!("  Tiles are a subset, reducing");
         // contradictions!
         if tile.count < tile0.count {
           return None;
@@ -134,6 +161,8 @@ fn resolve_tiles(
         updates.insert([i0, j0]);
         continue;
       }
+
+      println!("  No action taken");
     }
 
     // put the tile back after we've successfully reduced it
@@ -143,74 +172,10 @@ fn resolve_tiles(
   extract_results(board)
 }
 
-/** Solves a minesweeper board
- *
- * ## Arguments
- *
- * - board: the constraints representing the board to be solved
- * - start: where to start solving from
- *
- * ## Returns
- *
- * Whether there were conflicting constraints on the board
- */
-pub fn solve_board(
-  board: &mut [&mut [TileState]],
-  start: impl IntoIterator<Item = [usize; 2]>,
-) -> Option<Vec<Vec<TileResult>>> {
-  resolve_tiles(board, start)?;
-
-  // Positions to explore that aren't solved
-  let candidates: Vec<_> = board
-    .iter()
-    .enumerate()
-    .flat_map(|(j, row)| {
-      row.iter().enumerate().filter_map(move |(i, tile)| {
-        if tile.count == 0 {
-          return None;
-        }
-        if tile.count == tile.tiles.len() {
-          return None;
-        }
-        Some(([i, j], tile.clone()))
-      })
-    })
-    .collect();
-
-  // Build counts of affected variables
-  let mut counts: Vec<_> = board.iter().map(|row| vec![0; row.len()]).collect();
-  for tile in board.iter().flat_map(|row| row.iter()) {
-    for &[i, j] in &tile.tiles {
-      counts[j][i] += 1;
-    }
-  }
-
-  // Find tile with min solutions and max affected
-  let (idx, best) = candidates.into_iter().min_by_key(|(idx, tile)| {
-    let n_solutions = (tile.tiles.len() + 1..=tile.count).product::<usize>()
-      / (2..=(tile.count - tile.tiles.len())).product::<usize>();
-
-    let n_affected = tile.tiles.iter().map(|&[i, j]| counts[j][i]).sum::<isize>();
-
-    (n_solutions, -n_affected)
-  })?;
-
-  // Recurse on possible solutions to this tile
-  let res = best
-    .tiles
-    .iter()
-    .flat_map(|idx| {
-      [TileResult::Mine, TileResult::Safe]
-        .into_iter()
-        .map(move |res| (*idx, res))
-    })
-    .map(|(idx, res)| {});
-
-  None
-}
+mod solver;
 
 /// Finds all the neighbours of a given index in a grid size
-fn neighbours_of([i, j]: [usize; 2], [w, h]: [usize; 2]) -> impl Iterator<Item = [usize; 2]> {
+pub fn neighbours_of([i, j]: [usize; 2], [w, h]: [usize; 2]) -> impl Iterator<Item = [usize; 2]> {
   let mut nbs = Vec::with_capacity(8);
 
   if 0 < j {
@@ -243,4 +208,50 @@ fn neighbours_of([i, j]: [usize; 2], [w, h]: [usize; 2]) -> impl Iterator<Item =
   nbs.into_iter()
 }
 
-fn main() {}
+pub fn to_board_state<R: Deref<Target = [bool]>>(mines: &[R]) -> Vec<Vec<TileState>> {
+  if mines.len() == 0 {
+    return vec![];
+  }
+  let [w, h] = [mines[0].len(), mines.len()];
+
+  (0..h)
+    .map(|j0| {
+      (0..w)
+        .map(|i0| {
+          if mines[j0][i0] {
+            return TileState {
+              tiles: HashSet::new(),
+              count: 0,
+            };
+          }
+
+          let mut count = 0;
+          let tiles: HashSet<_> = neighbours_of([i0, j0], [w, h]).collect();
+
+          for &[i, j] in &tiles {
+            if mines[j][i] {
+              count += 1;
+            }
+          }
+
+          TileState { tiles, count }
+        })
+        .collect()
+    })
+    .collect()
+}
+
+fn main() {
+  let board = vec![
+    vec![true, false, true],
+    vec![true, false, false],
+    vec![false, false, true],
+  ];
+
+  let states = to_board_state(&board);
+  print_states(&states);
+
+  let mut states0 = states.clone();
+  let res = resolve_tiles(&mut states0, [[1, 0], [1, 1]]).unwrap();
+  print_results(&res);
+}
