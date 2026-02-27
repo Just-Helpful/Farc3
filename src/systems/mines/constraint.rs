@@ -30,8 +30,8 @@ impl<V: Hash + Eq> MineConstraint<V> {
   /// ## Examples
   ///
   /// ```
-  /// # use farc3_csp::prelude::Constraint;
-  /// # use farc3_csp::systems::mines::constraint::MineConstraint;
+  /// # use farc3::prelude::Constraint;
+  /// # use farc3::systems::mines::constraint::MineConstraint;
   /// MineConstraint::new([0, 1, 2], 2);
   /// MineConstraint::new(vec![0, 1, 2], 2);
   ///

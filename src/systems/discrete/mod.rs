@@ -6,6 +6,7 @@ pub mod utils;
 
 pub mod prelude {
   //! Common exports for generic constraint systems
+  pub use super::assignment::DiscreteAssignment;
   pub use super::constraint::DiscreteConstraint;
 }
 

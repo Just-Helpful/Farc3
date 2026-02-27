@@ -9,8 +9,8 @@ use crate::prelude::Assignment;
 /// ## Examples
 ///
 /// ```
-/// # use farc3_csp::prelude::Assignment;
-/// # use farc3_csp::systems::generic::assignment::DiscreteAssignment;
+/// # use farc3::prelude::Assignment;
+/// # use farc3::systems::discrete::assignment::DiscreteAssignment;
 /// let assign0 = DiscreteAssignment::from([
 ///   ("a", true), ("b", false), ("c", true)
 /// ]);

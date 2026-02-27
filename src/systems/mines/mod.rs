@@ -6,6 +6,7 @@ pub mod utils;
 
 pub mod prelude {
   //! Common exports for minesweeper systems
+  pub use super::assignment::MineAssignment;
   pub use super::constraint::MineConstraint;
 }
 

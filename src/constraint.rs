@@ -81,7 +81,7 @@ pub trait Constraint {
 
   /// An approximation to the number of unique assignments that `self` has.
   ///
-  /// This doesn't *have* to be exact, but should at least:
+  /// This doesn't *have* to be exact, but needs to:
   /// - `return 1` when there's only one unique solution
   /// - `return 0` when no solutions are possible
   fn size(&self) -> usize;
