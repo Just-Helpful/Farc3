@@ -37,6 +37,7 @@
 //! # Examples
 //!
 //! ```
+//! use std::collections::HashSet;
 //! use farc3::prelude::*;
 //!
 //! // Construct the two mine constraints:

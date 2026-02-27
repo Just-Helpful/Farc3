@@ -5,8 +5,8 @@
 /// ## Example
 ///
 /// ```
-/// # use farc3_csp::constraint::Constraint;
-/// # use farc3_csp::systems::mines::{
+/// # use farc3::constraint::Constraint;
+/// # use farc3::systems::mines::{
 /// #   constraint::MineConstraint,
 /// #   errors::MineConflicts
 /// # };
