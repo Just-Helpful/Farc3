@@ -13,7 +13,7 @@
 )
 [![Package version](https://raw.githubusercontent.com/Just-Helpful/Farc3/refs/heads/main/.github/badges/coverage.svg)][coverage-url]
 
-[coverage-url]: https://github.com/Just-Helpful/Farc3/actions/runs/16476118596/artifacts/3598750391
+[coverage-url]: https://github.com/Just-Helpful/Farc3/actions/runs/22497455258/artifacts/5694787005
 
 A semi-generic approach to solving Constraint Satisfaction Problems,\
 with the possibility to optimise based on the implementation of Constraints.
@@ -40,6 +40,7 @@ There's also some common variants of constraints:
 ## Examples
 
 ```rust
+use std::collections::HashSet;
 use farc3::prelude::*;
 
 // Construct the two mine constraints:
